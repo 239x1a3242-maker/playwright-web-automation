@@ -1,0 +1,30 @@
+import asyncio
+from playwright.async_api import async_playwright
+
+async def main():
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=False)  # visible browser for debugging
+        page = await browser.new_page()
+        await page.goto("https://www.youtube.com", wait_until="networkidle")
+
+        # Collect all input fields
+        inputs = await page.query_selector_all("input")
+        print("=== INPUT FIELDS (IDs, Classes, Names) ===")
+        for inp in inputs:
+            id_attr = await inp.get_attribute("id")
+            class_attr = await inp.get_attribute("class")
+            name_attr = await inp.get_attribute("name")
+            print({"id": id_attr, "class": class_attr, "name": name_attr})
+
+        # Collect all buttons
+        buttons = await page.query_selector_all("button")
+        print("\n=== BUTTONS (IDs, Classes, Aria-labels) ===")
+        for btn in buttons:
+            id_attr = await btn.get_attribute("id")
+            class_attr = await btn.get_attribute("class")
+            aria_label = await btn.get_attribute("aria-label")
+            print({"id": id_attr, "class": class_attr, "aria-label": aria_label})
+
+        await browser.close()
+
+asyncio.run(main())
